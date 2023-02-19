@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import InputMsg from '../Alert/InputMsg.vue';
 import { gsapTL } from '@/helpers/ui';
 
@@ -50,20 +50,27 @@ const addTag = (item: string) => {
     emit('update:modelValue', [...tags.value]);
 }
 
+const hideTags = ()=>{
+    console.log('DOC Click');
+    
+    if(!listEL.value  || listEL.value.classList.contains('hidden')){
+        return;
+    }
+    listEL.value.classList.remove('overflow-y-auto');
+    gsapTL()
+    .timeScale(3)
+    .to(listEL.value, {height: 0}).then(()=>{
+        listEL.value?.classList.add('hidden');
+    })
+};
+
 onMounted(()=>{
     allTags.value = props.fetcher('');
-    window.addEventListener('click', ()=>{
-        if(!listEL.value  || listEL.value.classList.contains('hidden')){
-            return;
-        }
-        listEL.value.classList.remove('overflow-y-auto');
-        gsapTL()
-        .timeScale(3)
-        .to(listEL.value, {height: 0}).then(()=>{
-            listEL.value?.classList.add('hidden');
-        })
-    })
+    window.addEventListener('click', hideTags);
+});
 
+onUnmounted(()=>{
+    window.removeEventListener('click', hideTags);
 });
 
 const search = (evt: any) => {
